@@ -785,6 +785,7 @@ dependencies = [
  "actix-web",
  "clap",
  "env_logger",
+ "log",
 ]
 
 [[package]]
