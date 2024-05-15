@@ -73,13 +73,13 @@ async fn main() -> std::io::Result<()> {
     let args = Args::parse();
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
 
-    let _ = HttpServer::new(move || {
-	let state = web::Data::new(AppState {
-	    store: Mutex::new(HashMap::new())
-	});
+    let state = web::Data::new(AppState {
+	store: Mutex::new(HashMap::new())
+    });
 
+    let _ = HttpServer::new(move || {
         App::new()
-            .app_data(state)
+            .app_data(state.clone())
             .service(get)
             .service(set)
             .service(del)
