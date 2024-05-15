@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use std::sync::Mutex;
 use actix_web::{web, App, get, post, delete, HttpServer, HttpResponse};
 use actix_web::http::header::ContentType;
-use log::info;
+use log::{info, error};
 
 #[derive(Parser, Debug)]
 #[command(author = "Josh Burns", version = "0.0.0", about = "Mini key-value store", long_about = None)]
@@ -23,48 +23,76 @@ struct AppState {
 #[get("/{key:.*}")]
 async fn get(path: web::Path<String>, data: web::Data<AppState>) -> HttpResponse {
     let key: String = path.into_inner();
+    info!("Fetching key: {}", key);
 
-    info!("Fetching {key}");
-
-    match data.store.lock().unwrap().get(&key) {
-	Some(value) => HttpResponse::Ok()
-			.content_type(ContentType::plaintext())
-			.body(value.to_string()),
-	_ => HttpResponse::NotFound()
-		.content_type(ContentType::plaintext())
-		.body("key not found\n")
+    let store = data.store.lock().unwrap();
+    match store.get(&key) {
+        Some(value) => {
+            info!("Key found: {} -> {}", key, value);
+            HttpResponse::Ok()
+                .content_type(ContentType::plaintext())
+                .body(value.to_string())
+        },
+        None => {
+            info!("Key not found: {}", key);
+            HttpResponse::NotFound()
+                .content_type(ContentType::plaintext())
+                .body("key not found\n")
+        },
     }
-
 }
 
 #[post("/{key:.*}")]
 async fn set(path: web::Path<String>, post: web::Bytes, data: web::Data<AppState>) -> HttpResponse {
     let key: String = path.into_inner();
-    let value: String = String::from_utf8(post.to_vec()).unwrap();
+    let value = match String::from_utf8(post.to_vec()) {
+        Ok(v) => v,
+        Err(e) => {
+            error!("Invalid UTF-8 sequence: {}", e);
+            return HttpResponse::BadRequest()
+                .content_type(ContentType::plaintext())
+                .body("invalid UTF-8 sequence\n");
+        },
+    };
 
-    info!("Setting {key} as {value}");
+    info!("Setting key: {} with value: {}", key, value);
 
-    match data.store.lock().unwrap().insert(key, value) {
-	None => HttpResponse::Created()
-	    .content_type(ContentType::plaintext())
-	    .body("new value inserted\n"),
-	Some(_) => HttpResponse::Accepted()
-	    .content_type(ContentType::plaintext())
-	    .body("value updated\n"),
+    let mut store = data.store.lock().unwrap();
+    match store.insert(key.clone(), value.clone()) {
+        None => {
+            info!("New key inserted: {} -> {}", key, value);
+            HttpResponse::Created()
+                .content_type(ContentType::plaintext())
+                .body("new value inserted\n")
+        },
+        Some(_) => {
+            info!("Key updated: {} -> {}", key, value);
+            HttpResponse::Accepted()
+                .content_type(ContentType::plaintext())
+                .body("value updated\n")
+        },
     }
 }
 
 #[delete("/{key:.*}")]
 async fn del(path: web::Path<String>, data: web::Data<AppState>) -> HttpResponse {
     let key: String = path.into_inner();
+    info!("Deleting key: {}", key);
 
-    match data.store.lock().unwrap().remove(&key) {
-	Some(_) => HttpResponse::Ok()
-	    .content_type(ContentType::plaintext())
-	    .body("key and value removed\n"),
-	_ => HttpResponse::NotFound()
-	    .content_type(ContentType::plaintext())
-	    .body("key not found\n"),
+    let mut store = data.store.lock().unwrap();
+    match store.remove(&key) {
+        Some(_) => {
+            info!("Key removed: {}", key);
+            HttpResponse::Ok()
+                .content_type(ContentType::plaintext())
+                .body("key and value removed\n")
+        },
+        None => {
+            info!("Key not found for deletion: {}", key);
+            HttpResponse::NotFound()
+                .content_type(ContentType::plaintext())
+                .body("key not found\n")
+        },
     }
 }
 
@@ -74,19 +102,17 @@ async fn main() -> std::io::Result<()> {
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
 
     let state = web::Data::new(AppState {
-	store: Mutex::new(HashMap::new())
+        store: Mutex::new(HashMap::new())
     });
 
-    let _ = HttpServer::new(move || {
+    HttpServer::new(move || {
         App::new()
             .app_data(state.clone())
             .service(get)
             .service(set)
             .service(del)
     })
-    .bind((args.host, args.port))?
+    .bind((args.host.as_str(), args.port))?
     .run()
-    .await;
-
-    Ok(())
+    .await
 }
