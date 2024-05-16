@@ -6,7 +6,7 @@ use actix_web::http::header::ContentType;
 use log::{info, error};
 
 #[derive(Parser, Debug)]
-#[command(author = "Josh Burns", version = "0.0.0", about = "Mini key-value store", long_about = None)]
+#[command(author = "Josh Burns", version = "0.0.0", about = "Mini key-value store over HTTP", long_about = None)]
 struct Args {
     #[arg(long, default_value_t = String::from("0.0.0.0"))]
     host: String,
@@ -20,7 +20,7 @@ struct AppState {
     store: Mutex<HashMap<String, String>>
 }
 
-#[get("/{key:.*}")]
+#[get("/keys/{key:.*}")]
 async fn get(path: web::Path<String>, data: web::Data<AppState>) -> HttpResponse {
     let key: String = path.into_inner();
     info!("Fetching key: {}", key);
@@ -42,7 +42,7 @@ async fn get(path: web::Path<String>, data: web::Data<AppState>) -> HttpResponse
     }
 }
 
-#[post("/{key:.*}")]
+#[post("/keys/{key:.*}")]
 async fn set(path: web::Path<String>, post: web::Bytes, data: web::Data<AppState>) -> HttpResponse {
     let key: String = path.into_inner();
     let value = match String::from_utf8(post.to_vec()) {
@@ -74,7 +74,7 @@ async fn set(path: web::Path<String>, post: web::Bytes, data: web::Data<AppState
     }
 }
 
-#[delete("/{key:.*}")]
+#[delete("/keys/{key:.*}")]
 async fn del(path: web::Path<String>, data: web::Data<AppState>) -> HttpResponse {
     let key: String = path.into_inner();
     info!("Deleting key: {}", key);
