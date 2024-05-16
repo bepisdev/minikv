@@ -16,8 +16,12 @@ release:
 		--release
 	cp $(TARGETDIR)/release/$(BIN) $(OUTDIR)/$(BIN)
 
+clean:
+	@rm -rf $(TARGETDIR)
+	@rm -rf $(OUTDIR)
+
 test:
 	$(CARGO) test
 
 
-.PHONY: debug release test
+.PHONY: debug release test clean
