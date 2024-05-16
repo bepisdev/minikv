@@ -6,7 +6,7 @@ mod app_state;
 mod api;
 
 use app_state::AppState;
-use api::{get, set, del};
+use api::{get, set, del, get_all};
 
 #[derive(Parser, Debug)]
 #[command(author = "Josh Burns", version = "0.0.0", about = "Mini key-value store over HTTP", long_about = None)]
@@ -34,6 +34,7 @@ async fn main() -> std::io::Result<()> {
             .service(get)
             .service(set)
             .service(del)
+            .service(get_all)
     })
     .bind((args.host.as_str(), args.port))?
     .run()

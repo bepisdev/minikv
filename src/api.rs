@@ -4,6 +4,8 @@ use log::{info, error};
 
 use crate::app_state::AppState;
 
+// Keys API
+
 #[get("/keys/{key:.*}")]
 pub async fn get(path: web::Path<String>, data: web::Data<AppState>) -> HttpResponse {
     let key: String = path.into_inner();
@@ -79,3 +81,19 @@ pub async fn del(path: web::Path<String>, data: web::Data<AppState>) -> HttpResp
         },
     }
 }
+
+// View All Keys
+#[get("/all")]
+pub async fn get_all(data: web::Data<AppState>) -> HttpResponse {
+    info!("Dumping all keys to requester");
+
+    let store = data.store.lock().unwrap();
+    let mut res_str: String = String::new();
+
+    for (key, val) in store.iter() {
+	res_str.push_str(format!("{} => {}\n", key, val).as_str());
+    };
+
+    return HttpResponse::Ok().content_type(ContentType::plaintext()).body(res_str.to_string());
+}
+
