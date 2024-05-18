@@ -7,7 +7,6 @@ pub async fn auth_middleware(
     req: ServiceRequest,
     creds: BasicAuth,
 ) -> Result<ServiceRequest, (ActixError, ServiceRequest)> {
-
     // Fetch the valid credentials from environment variables
     let valid_user_id = env::var("MINIKV_USERNAME").unwrap_or_else(|_| "admin".to_string());
     let valid_password = env::var("MINIKV_PASSWORD").unwrap_or_else(|_| "admin".to_string());
@@ -15,7 +14,10 @@ pub async fn auth_middleware(
     if creds.user_id() == valid_user_id && creds.password() == Some(valid_password.as_str()) {
         Ok(req)
     } else {
-	warn!("Unauthorized access attempt with user ID: {}", creds.user_id());
+        warn!(
+            "Unauthorized access attempt with user ID: {}",
+            creds.user_id()
+        );
         Err((ErrorUnauthorized("Invalid Credentials"), req))
     }
 }

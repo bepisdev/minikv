@@ -34,10 +34,14 @@ mod tests {
             let mut store = state.store.lock().unwrap();
             store.insert("key".to_string(), "value".to_string());
         }
-        
+
         {
             let store = state.store.lock().unwrap();
-            assert_eq!(store.get("key"), Some(&"value".to_string()), "Value should be 'value'");
+            assert_eq!(
+                store.get("key"),
+                Some(&"value".to_string()),
+                "Value should be 'value'"
+            );
         }
     }
 
@@ -48,15 +52,19 @@ mod tests {
             let mut store = state.store.lock().unwrap();
             store.insert("key".to_string(), "value".to_string());
         }
-        
+
         {
             let mut store = state.store.lock().unwrap();
             store.insert("key".to_string(), "new_value".to_string());
         }
-        
+
         {
             let store = state.store.lock().unwrap();
-            assert_eq!(store.get("key"), Some(&"new_value".to_string()), "Value should be 'new_value'");
+            assert_eq!(
+                store.get("key"),
+                Some(&"new_value".to_string()),
+                "Value should be 'new_value'"
+            );
         }
     }
 
@@ -67,12 +75,12 @@ mod tests {
             let mut store = state.store.lock().unwrap();
             store.insert("key".to_string(), "value".to_string());
         }
-        
+
         {
             let mut store = state.store.lock().unwrap();
             store.remove("key");
         }
-        
+
         {
             let store = state.store.lock().unwrap();
             assert!(store.get("key").is_none(), "Key should be removed");
