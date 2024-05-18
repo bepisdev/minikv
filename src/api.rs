@@ -1,6 +1,6 @@
-use actix_web::{web, get, post, delete, HttpResponse};
 use actix_web::http::header::ContentType;
-use log::{info, error};
+use actix_web::{delete, get, post, web, HttpResponse};
+use log::{error, info};
 
 use crate::app_state::AppState;
 
@@ -18,18 +18,22 @@ pub async fn get(path: web::Path<String>, data: web::Data<AppState>) -> HttpResp
             HttpResponse::Ok()
                 .content_type(ContentType::plaintext())
                 .body(value.to_string())
-        },
+        }
         None => {
             info!("Key not found: {}", key);
             HttpResponse::NotFound()
                 .content_type(ContentType::plaintext())
                 .body("key not found\n")
-        },
+        }
     }
 }
 
 #[post("/keys/{key:.*}")]
-pub async fn set(path: web::Path<String>, post: web::Bytes, data: web::Data<AppState>) -> HttpResponse {
+pub async fn set(
+    path: web::Path<String>,
+    post: web::Bytes,
+    data: web::Data<AppState>,
+) -> HttpResponse {
     let key: String = path.into_inner();
     let value = match String::from_utf8(post.to_vec()) {
         Ok(v) => v,
@@ -38,7 +42,7 @@ pub async fn set(path: web::Path<String>, post: web::Bytes, data: web::Data<AppS
             return HttpResponse::BadRequest()
                 .content_type(ContentType::plaintext())
                 .body("invalid UTF-8 sequence\n");
-        },
+        }
     };
 
     info!("Setting key: {} with value: {}", key, value);
@@ -50,13 +54,13 @@ pub async fn set(path: web::Path<String>, post: web::Bytes, data: web::Data<AppS
             HttpResponse::Created()
                 .content_type(ContentType::plaintext())
                 .body("new value inserted\n")
-        },
+        }
         Some(_) => {
             info!("Key updated: {} -> {}", key, value);
             HttpResponse::Accepted()
                 .content_type(ContentType::plaintext())
                 .body("value updated\n")
-        },
+        }
     }
 }
 
@@ -72,13 +76,13 @@ pub async fn del(path: web::Path<String>, data: web::Data<AppState>) -> HttpResp
             HttpResponse::Ok()
                 .content_type(ContentType::plaintext())
                 .body("key and value removed\n")
-        },
+        }
         None => {
             info!("Key not found for deletion: {}", key);
             HttpResponse::NotFound()
                 .content_type(ContentType::plaintext())
                 .body("key not found\n")
-        },
+        }
     }
 }
 
@@ -91,9 +95,10 @@ pub async fn get_all(data: web::Data<AppState>) -> HttpResponse {
     let mut res_str: String = String::new();
 
     for (key, val) in store.iter() {
-	res_str.push_str(format!("{} => {}\n", key, val).as_str());
-    };
+        res_str.push_str(format!("{} => {}\n", key, val).as_str());
+    }
 
-    return HttpResponse::Ok().content_type(ContentType::plaintext()).body(res_str.to_string());
+    return HttpResponse::Ok()
+        .content_type(ContentType::plaintext())
+        .body(res_str.to_string());
 }
-

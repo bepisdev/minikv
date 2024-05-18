@@ -1,14 +1,14 @@
-use clap::Parser;
 use actix_web::{App, HttpServer};
 use actix_web_httpauth::middleware::HttpAuthentication;
+use clap::Parser;
 use log::info;
 
-mod app_state;
 mod api;
+mod app_state;
 mod middlewares;
 
+use api::{del, get, get_all, set};
 use app_state::AppState;
-use api::{get, set, del, get_all};
 use middlewares::auth_middleware;
 
 #[derive(Parser, Debug)]
@@ -27,14 +27,16 @@ struct Args {
     password: String,
 }
 
-
-
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     let args = Args::parse();
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
 
-    info!("Starting MiniKV server on {}:{}", args.host.as_str(), args.port);
+    info!(
+        "Starting MiniKV server on {}:{}",
+        args.host.as_str(),
+        args.port
+    );
     let state = AppState::new();
 
     HttpServer::new(move || {
