@@ -12,7 +12,7 @@ use api::{get, set, del, get_all};
 use middlewares::auth_middleware;
 
 #[derive(Parser, Debug)]
-#[command(author = "Josh Burns", version = "0.0.0", about = "Mini key-value store over HTTP", long_about = None)]
+#[command(author = "Josh Burns", version = "0.1.0", about = "Mini key-value store over HTTP", long_about = None)]
 struct Args {
     #[arg(long, default_value_t = String::from("0.0.0.0"))]
     host: String,
