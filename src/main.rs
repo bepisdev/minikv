@@ -19,6 +19,12 @@ struct Args {
 
     #[arg(long, short, default_value_t = 8899)]
     port: u16,
+
+    #[arg(long, env = String::from("MINIKV_USER"), default_value_t = String::from("admin"))]
+    username: String,
+
+    #[arg(long, env = String::from("MINIKV_PASSWORD"), default_value_t = String::from("admin"))]
+    password: String,
 }
 
 
