@@ -1,6 +1,7 @@
 use clap::Parser;
-use actix_web::{App, HttpServer};
+use actix_web::{App, HttpServer, dev::ServiceRequest, error::ErrorUnauthorized, Error as ActixError};
 use log::info;
+use actix_web_httpauth::{extractors::basic::BasicAuth, middleware::HttpAuthentication};
 
 mod app_state;
 mod api;
@@ -18,7 +19,13 @@ struct Args {
     port: u16,
 }
 
-
+async fn auth_middleware(req: ServiceRequest, creds: BasicAuth) -> Result<ServiceRequest, (ActixError, ServiceRequest)> {
+    if creds.user_id() == "admin" && creds.password() == Some("admin") {
+	Ok(req)
+    } else {
+	Err((ErrorUnauthorized("Invalid Credentials"), req))
+    }
+}
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -31,6 +38,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .app_data(state.clone())
+            .wrap(HttpAuthentication::basic(auth_middleware))
             .service(get)
             .service(set)
             .service(del)

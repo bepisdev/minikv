@@ -31,6 +31,7 @@ pub async fn get(path: web::Path<String>, data: web::Data<AppState>) -> HttpResp
 #[post("/keys/{key:.*}")]
 pub async fn set(path: web::Path<String>, post: web::Bytes, data: web::Data<AppState>) -> HttpResponse {
     let key: String = path.into_inner();
+    info!("Setting value for {key}");
     let value = match String::from_utf8(post.to_vec()) {
         Ok(v) => v,
         Err(e) => {
