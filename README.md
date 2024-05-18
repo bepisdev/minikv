@@ -11,8 +11,9 @@ __FIXME__
 **Basic Setup**
 
 ``` shell
-$ export MINIKV_USERNAME="admin"
-$ export MINIKV_PASSWORD="amoresecurepaswordthandefault"
+$ export MINIKV_USERNAME=admin
+$ export MINIKV_PASSWORD=amoresecurepaswordthandefault
+$ export MINIKV_LOG_LEVEL=info
 $ minikv -p 8899
 ```
 
@@ -31,7 +32,7 @@ MiniKV is configurable via CLI flags and environment variables.
 - `MINIKV_PASSWORD` - Defines the *HTTP Basic Auth* password to use for authentication.
 - `MINIKV_LOG_LEVEL` - Defines the logging level for output, one of the following (in order of verbosity).
   - `error`
-  - `warn`
+  - `warn` - (*This is the default level, anything below this wont be logged by default*)
   - `info`
   - `debug`
   - `trace`
