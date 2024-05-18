@@ -12,4 +12,14 @@ __FIXME__
 
 ## Installation
 
-__FIXME__
+**Requirements**
+
+- Rust toolchain
+- Make
+
+``` shell
+$ git clone https://github.com/joshburnsxyz/minikv
+$ cd minikv
+$ make
+$ sudo make install
+```
