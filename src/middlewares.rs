@@ -13,9 +13,6 @@ pub async fn auth_middleware(
     let valid_password = env::var("MINIKV_PASSWORD").unwrap_or_else(|_| "admin".to_string());
 
     if creds.user_id() == valid_user_id && creds.password() == Some(valid_password.as_str()) {
-	if creds.user_id() == "admin" && creds.password() == Some("admin") {
-	    warn!("Using default credentials is not secure. This is fine for development and testing but when using in production environments consider using a different username and password. This can be changed with environment variables MINIKV_USERNAME and MINIKV_PASSWORD.");
-	}
         Ok(req)
     } else {
 	warn!("Unauthorized access attempt with user ID: {}", creds.user_id());

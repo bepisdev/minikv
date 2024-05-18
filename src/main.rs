@@ -24,7 +24,7 @@ struct Args {
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     let args = Args::parse();
-    env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
+    env_logger::init_from_env(env_logger::Env::new().filter_or("MINIKV_LOG_LEVEL", "warn"));
 
     info!(
         "Starting MiniKV server on {}:{}",
