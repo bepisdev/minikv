@@ -2,6 +2,7 @@ CARGO := $(shell which cargo)
 OUTDIR := dist
 TARGETDIR := target
 BIN := minikv
+PREFIX := /usr
 
 debug:
 	@mkdir -p $(OUTDIR)
@@ -22,6 +23,9 @@ clean:
 
 test:
 	$(CARGO) test
+
+install:
+	cp $(OUTDIR)/$(BIN) $(PREFIX)/bin/$(BIN)
 
 
 .PHONY: debug release test clean
