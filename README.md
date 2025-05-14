@@ -46,7 +46,7 @@ Follow these steps to install MiniKV:
 
 1. Clone the repository:
     ```shell
-    $ git clone https://github.com/joshburnsxyz/minikv
+    $ git clone https://github.com/bepisdev/minikv
     ```
 
 2. Navigate to the project directory:
